@@ -1,6 +1,5 @@
 #include <iostream>
 
-#include "TestCaseConsts.h"
 #include "CommandLineArgument.h"
 
 using namespace std;
