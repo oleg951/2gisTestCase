@@ -3,6 +3,7 @@
 
 #include <map>
 #include <vector>
+#include <memory>
 #include <string_view>
 
 class CommandLineArgument;
@@ -12,34 +13,31 @@ class CommandLineParser
 {
 public:
     /*!
-     * \brief Состояния парсера.
-     */
-    enum class State {
-        Command,    ///< Команда.
-        Value,      ///< Значение.
-
-        UnknowState ///< Неизвестное состояние.
-    };
-    /*!
      * \brief Конструктор.
      */
-    explicit CommandLineParser();
+    explicit CommandLineParser(int argc, char **argv);
 
     /*!
-     * \brief Парсит аргументы коммандной строки.
-     * \param argc - количетсво аргументов.
-     * \param argv - аргументы.
+     * \brief Парсит аргументы коммандной строки.W
      * \throw std::exception - если не удалось распарсить аргументы командной строки.
-     * \return Ассоциированный список агрументов коммандной строки с значением.
      */
-    void parse(int argc, char **argv, CommandLineArgument &_root);
+    void parse(std::shared_ptr<CommandLineArgument> _root);
 
 private:
+    //! Количество аргументов.
+    int m_argc;
+    //! Аргументы командной строки.
+    char **m_argv;
 
-    //! Текущее состояние.
-    State m_currState;
-    //! Предыдущее состояние.
-    State m_prevState;
+    //! Следующий несчитанные аргумент.
+    int m_nextArg;
+
+    /*!
+     * \brief Считывает аргумент и значение.
+     * \return Возвращает несчитанные аргумент с значением \first - аргумент, \second -  значение.
+     * \throw std::invalid_argument - если не удалось считать аргумент.
+     */
+    std::pair<std::string, std::string> nextArg();
 };
 
 #endif // COMMANDARGUMENTPARSER_H

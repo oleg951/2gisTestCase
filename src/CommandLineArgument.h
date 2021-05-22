@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <optional>
+#include <memory>
 
 
 struct Converter {
@@ -13,7 +14,7 @@ struct Converter {
 };
 
 //! Класс, определяющий аргумент коммандной строки.
-class CommandLineArgument
+class CommandLineArgument: public std::enable_shared_from_this<CommandLineArgument>
 {
 public:
     /*!
@@ -51,30 +52,24 @@ public:
      * \param _child - дочерний агрумент.
      * \return Возвращает true при успешной вставке, иначе false.
      */
-    bool addChild(CommandLineArgument &&_child) noexcept;
-    /*!
-     * \brief Добавляет дочерний аргумент.
-     * \param _child - дочерний агрумент.
-     * \return Возвращает true при успешной вставке, иначе false.
-     */
-    bool addChild(const CommandLineArgument &_child) noexcept;
+    bool addChild(std::shared_ptr<CommandLineArgument> _child) noexcept;
     /*!
      * \brief Возвращает дочерний аргумент.
      * \param _view - название аргумента.
      * \return Дочерний элемент с название \a _view.
      * \throw std::out_of_range - если не удалось найти дочерний элемент.
      */
-    CommandLineArgument &child(const std::string &_arg);
+    std::shared_ptr<CommandLineArgument> child(const std::string &_arg);
     /*!
      * \brief Возвращает список дочерних аргументов.
      * \return Список дочерних аргументов.
      */
-    const std::map<std::string, CommandLineArgument> &children() const noexcept;
+    const std::map<std::string, std::shared_ptr<CommandLineArgument>> &children() const noexcept;
     /*!
      * \brief Возвращает родительский аргумент.
      * \return Родительский аргумент.
      */
-    CommandLineArgument *parent() const noexcept;
+    std::weak_ptr<CommandLineArgument> parent() const noexcept;
 
     /*!
      * \brief Возвращает название аргумента.
@@ -121,15 +116,15 @@ private:
     std::map<std::string, std::string> m_availableValues;
 
     //! Родительский аргумент.
-    CommandLineArgument *m_parent;
+    std::weak_ptr<CommandLineArgument> m_parent;
     //! Дочерние аргументы.
-    std::map<std::string, CommandLineArgument> m_children;
+    std::map<std::string, std::shared_ptr<CommandLineArgument>> m_children;
 
     /*!
      * \brief Задает родительский элемент.
      * \param _parent - родительский элемент.
      */
-    void setParent(CommandLineArgument *_parent);
+    void setParent(std::shared_ptr<CommandLineArgument> _parent);
 };
 
 template<class T, class C>

@@ -3,15 +3,15 @@
 #include <sstream>
 
 CommandLineArgument::CommandLineArgument(std::string_view _arg, std::string_view _description):
-    m_arg(_arg), m_description(_description), m_parent(nullptr)
+    m_arg(_arg), m_description(_description)
 {
 
 }
 
 void CommandLineArgument::setValue(const std::string &_value)
 {
-    if (!m_availableValues.empty() && m_availableValues.contains(_value)) {
-        throw std::out_of_range("the value of the command line argument is out of range");
+    if (!m_availableValues.empty() && !m_availableValues.contains(_value)) {
+        throw std::out_of_range("The value of the command line is out of range");
     }
 
     m_value = _value;
@@ -22,45 +22,39 @@ bool CommandLineArgument::hasValue() const noexcept
     return m_value.has_value();
 }
 
-bool CommandLineArgument::addChild(CommandLineArgument &&_child) noexcept
+bool CommandLineArgument::addChild(std::shared_ptr<CommandLineArgument> _child) noexcept
 {
-    const auto [it, success] = m_children.insert(std::make_pair(_child.arg(), std::move(_child)));
+    if (!_child) {
+        return false;
+    }
+
+    auto [it, success] = m_children.insert(std::make_pair(_child->arg(), _child));
     if (success) {
-        it->second.setParent(this);
+        it->second->setParent(shared_from_this());
     }
 
     return success;
 }
 
-bool CommandLineArgument::addChild(const CommandLineArgument &_child) noexcept
-{
-    auto [it, success] = m_children.insert(std::make_pair(_child.arg(), _child));
-    if (success) {
-        it->second.setParent(this);
-    }
-
-    return success;
-}
-
-CommandLineArgument &CommandLineArgument::child(const std::string &_arg)
+std::shared_ptr<CommandLineArgument> CommandLineArgument::child(const std::string &_arg)
 {
     if (m_children.contains(_arg)) {
         return m_children.at(_arg);
     }
 
     for (auto ch: m_children) {
-        return  ch.second.child(_arg);
+        return  ch.second->child(_arg);
     }
 
-    throw std::out_of_range("the argument of the command line argument is out of range");
+    throw std::out_of_range("The argument of the command line is out of range");
 }
 
-const std::map<std::string, CommandLineArgument> &CommandLineArgument::children() const noexcept
+const std::map<std::string, std::shared_ptr<CommandLineArgument> > &CommandLineArgument::children() const noexcept
 {
     return  m_children;
 }
 
-CommandLineArgument *CommandLineArgument::parent() const noexcept
+std::weak_ptr<CommandLineArgument> CommandLineArgument::parent() const noexcept
 {
     return m_parent;
 }
@@ -96,7 +90,7 @@ const std::map<std::string, std::string> &CommandLineArgument::availableValues()
     return m_availableValues;
 }
 
-void CommandLineArgument::setParent(CommandLineArgument *_parent)
+void CommandLineArgument::setParent(std::shared_ptr<CommandLineArgument> _parent)
 {
     m_parent = _parent;
 }

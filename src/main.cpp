@@ -1,46 +1,53 @@
 #include <iostream>
 
 #include "CommandLineArgument.h"
+#include "CommandLineParser.h"
+
+#include <iomanip>
 
 using namespace std;
 
-void showInfo(const CommandLineArgument &_root) noexcept;
+void showInfo(std::shared_ptr<CommandLineArgument> root) noexcept;
 
-int main(int argc, char*argv[])
+int main(int argc, char**argv)
 {
-    cout << argc << endl;
-    for (int i = 0; i < argc; ++i) {
-        cout << argv[i] << endl;
+    // Инициализация дерева аргументов с их возможными значениями.
+    auto root = std::make_shared<CommandLineArgument>("", "");
+    auto fileArg = std::make_shared<CommandLineArgument>("-f", "The path to the file");
+    fileArg->addChild(std::make_shared<CommandLineArgument>("-v", "Search word in file"));
+
+    auto mode = std::make_shared<CommandLineArgument>("-m", "File mode");
+    mode->addAvailableValue("words", "Prints value count in file");
+    mode->addAvailableValue("checksum", "Prints 32-bit checksum of file");
+    fileArg->addChild(mode);
+
+    root->addChild(fileArg);
+    root->addChild(std::make_shared<CommandLineArgument>("-h", "Show help"));
+
+    try {
+        // Парсим командную строку.
+        CommandLineParser parser(argc, argv);
+        parser.parse(root);
+
+        if (root->child("-h")->hasValue()) {
+            cout << "Options:";
+            showInfo(root);
+        }
     }
-
-    uint32_t test = (uint32_t)1000;
-    cout << sizeof(uint32_t*) << " " << sizeof (test) << sizeof (char*) << sizeof(char) << endl;
-
-    CommandLineArgument root("Options:", "");
-    CommandLineArgument fileArg = CommandLineArgument("-f", "The path to the file");
-    fileArg.addChild(CommandLineArgument("-v", "Search word in file"));
-
-    CommandLineArgument mode = CommandLineArgument("-m", "File mode");
-    mode.addAvailableValue("words", "Prints value count in file");
-    mode.addAvailableValue("checksum", "Prints 32-bit checksum of file");
-    fileArg.addChild(mode);
-
-    root.addChild(fileArg);
-    root.addChild(CommandLineArgument("-h", "Show help"));
-
-    showInfo(root);
+    catch (const std::exception &exception) {
+        cout << exception.what() << endl;
+    }
 
     return 0;
 }
 
-void showInfo(const CommandLineArgument &_root) noexcept {
-
-    cout << _root.arg() << "\t" << _root.description() << endl;
-    for (const auto [name, descr]: _root.availableValues()) {
-        cout << "  " << name << '\t' << descr << endl;
+void showInfo(std::shared_ptr<CommandLineArgument> _root) noexcept {
+    cout << setw(20) << left <<_root->arg() << right << _root->description() << endl;
+    for (const auto [name, descr]: _root->availableValues()) {
+        cout << setw(20) << left << "  " + name << right << descr << endl;
     }
 
-    for (const auto [name, arg]: _root.children()) {
+    for (const auto [name, arg]: _root->children()) {
         showInfo(arg);
     }
 }
