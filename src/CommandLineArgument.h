@@ -29,9 +29,9 @@ public:
     /*!
      * \brief Задает значение аргумента.
      * \param _value - значение аргумента.
-     * \throw std::out_of_range - если не удалось задать значение аргументу.
+     * \return true - если удалось задать значение аргументу, иначе false.
      */
-    void setValue(const std::string &_value);
+    bool setValue(const std::string &_value);
     /*!
      * \brief Возвращает значение аргумента преобразованное к типу.
      * \tparam T - тип данных, к которому необходимо преобразовать значение.
@@ -40,7 +40,7 @@ public:
      * \throw Если не удалось преобразовать значение к типе \a T.
      */
     template<class T, class C = Converter>
-    T &to() const;
+    T to() const;
     /*!
      * \brief Проверяет установку значения аргументу.
      * \return true - если значение установлена, иначе false.
@@ -128,10 +128,10 @@ private:
 };
 
 template<class T, class C>
-T &CommandLineArgument::to() const
+T CommandLineArgument::to() const
 {
-    if constexpr (std::is_same_v<T, typeof(m_value)>) {
-        return m_value;
+    if constexpr (std::is_same_v<T, std::string>) {
+        return m_value.value();
     }
     else {
         T tmp;

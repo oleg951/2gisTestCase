@@ -11,6 +11,7 @@ set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp
             ${CMAKE_SOURCE_DIR}/src/CommandLineParser.cpp
             ${CMAKE_SOURCE_DIR}/src/CommandLineArgument.cpp)
 set (HEADERS ${CMAKE_SOURCE_DIR}/src/CommandLineParser.h
-             ${CMAKE_SOURCE_DIR}/src/CommandLineArgument.h)
+             ${CMAKE_SOURCE_DIR}/src/CommandLineArgument.h
+             ${CMAKE_SOURCE_DIR}/src/CommandLineConsts.h)
 
 add_executable(TestCase ${SOURCES})

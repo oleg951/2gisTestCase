@@ -2,9 +2,8 @@
 #define COMMANDARGUMENTPARSER_H
 
 #include <map>
-#include <vector>
+#include <regex>
 #include <memory>
-#include <string_view>
 
 class CommandLineArgument;
 
@@ -24,6 +23,8 @@ public:
     void parse(std::shared_ptr<CommandLineArgument> _root);
 
 private:
+    //! Регулярное выражения, определяющее флаг.
+    std::regex m_argumentRx;
     //! Количество аргументов.
     int m_argc;
     //! Аргументы командной строки.

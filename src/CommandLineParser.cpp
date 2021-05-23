@@ -1,64 +1,69 @@
 #include "CommandLineParser.h"
 
 #include "CommandLineArgument.h"
+#include "CommandLineArgumentConsts.h"
 
 #include <regex>
 
 CommandLineParser::CommandLineParser(int _argc, char **_argv):
-    m_argc(_argc), m_argv(_argv), m_nextArg(1)
+    m_argumentRx(CommandLineConsts::FLAG_REGEXP), m_argc(_argc), m_argv(_argv), m_nextArg(1)
 {
 
 }
 
 void CommandLineParser::parse(std::shared_ptr<CommandLineArgument> _root)
 {
-    try {
-        m_nextArg = 1;
+    m_nextArg = 1;
 
-        while (m_nextArg != m_argc) {
+    while (m_nextArg != m_argc) {
 
-           auto [arg, value] = nextArg();
-           auto argument = _root->child(arg);
-
-           auto parent = argument->parent();
-           std::shared_ptr<CommandLineArgument> sharedParent = parent.lock();
-           if (sharedParent && sharedParent != _root && !sharedParent->hasValue()) {
-               throw std::invalid_argument(std::string("No value specified for argument ")
-                                            + std::string(sharedParent->arg()));
-           }
-
-           argument->setValue(value);
+        auto [arg, value] = nextArg();
+        std::shared_ptr<CommandLineArgument> argument;
+        try {
+            argument = _root->child(arg);
         }
-    }
-    catch (std::exception &_exception) {
-        throw std::invalid_argument(_exception.what());
+        catch (...) {
+            throw std::invalid_argument(std::string("Unknown argument ")
+                                        + std::string(arg));
+        }
+
+        auto parent = argument->parent();
+        std::shared_ptr<CommandLineArgument> sharedParent = parent.lock();
+        if (sharedParent && sharedParent != _root && !sharedParent->hasValue()) {
+            throw std::invalid_argument(std::string("No value specified for argument ")
+                                        + std::string(sharedParent->arg()));
+        }
+
+        if (!argument->setValue(value)) {
+            throw std::invalid_argument(std::string("Invalid value ") + value
+                                        + std::string(" for argument ") + arg);
+        }
     }
 }
 
 std::pair<std::string, std::string> CommandLineParser::nextArg()
 {
-    std::regex flagRegex("-[a-zA-Z]+");
     if (m_nextArg == m_argc) {
-        return std::make_pair(std::string(), std::string());
+        return {std::string(), std::string()};
     }
 
     std::string flag = m_argv[m_nextArg];
-    if (!std::regex_match(flag, flagRegex)) {
+    if (!std::regex_match(flag, m_argumentRx)) {
         throw std::invalid_argument(flag + std::string(" is not argument"));
     }
 
     m_nextArg++;
 
     if (m_nextArg == m_argc) {
-        return std::make_pair(flag, std::string());
+        return {flag, std::string()};
     }
 
     std::string value = m_argv[m_nextArg];
-    if (std::regex_match(value, flagRegex)) {
-        return std::make_pair(flag, std::string());
+    if (std::regex_match(value, m_argumentRx)) {
+        return {flag, std::string()};
     }
 
     m_nextArg++;
 
-    return std::make_pair(flag, value);
+    return {flag, value};
 }

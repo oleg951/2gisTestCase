@@ -8,13 +8,15 @@ CommandLineArgument::CommandLineArgument(std::string_view _arg, std::string_view
 
 }
 
-void CommandLineArgument::setValue(const std::string &_value)
+bool CommandLineArgument::setValue(const std::string &_value)
 {
     if (!m_availableValues.empty() && !m_availableValues.contains(_value)) {
-        throw std::out_of_range("The value of the command line is out of range");
+        return false;
     }
 
     m_value = _value;
+
+    return true;
 }
 
 bool CommandLineArgument::hasValue() const noexcept
