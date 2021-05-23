@@ -9,9 +9,11 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_SOURCE_DIR}/bin)
 
 set(SOURCES ${CMAKE_SOURCE_DIR}/src/main.cpp
             ${CMAKE_SOURCE_DIR}/src/CommandLineParser.cpp
-            ${CMAKE_SOURCE_DIR}/src/CommandLineArgument.cpp)
+            ${CMAKE_SOURCE_DIR}/src/CommandLineArgument.cpp
+            ${CMAKE_SOURCE_DIR}/src/CommandLineExcecutor.cpp)
 set (HEADERS ${CMAKE_SOURCE_DIR}/src/CommandLineParser.h
              ${CMAKE_SOURCE_DIR}/src/CommandLineArgument.h
-             ${CMAKE_SOURCE_DIR}/src/CommandLineConsts.h)
+             ${CMAKE_SOURCE_DIR}/src/CommandLineConsts.h
+             ${CMAKE_SOURCE_DIR}/src/CommandLineExcecutor.h)
 
 add_executable(TestCase ${SOURCES})
