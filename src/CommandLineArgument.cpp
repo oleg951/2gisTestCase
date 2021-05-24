@@ -44,7 +44,7 @@ std::shared_ptr<CommandLineArgument> CommandLineArgument::child(const std::strin
         return m_children.at(_arg);
     }
 
-    for (auto ch: m_children) {
+    for (auto &ch: m_children) {
         return  ch.second->child(_arg);
     }
 

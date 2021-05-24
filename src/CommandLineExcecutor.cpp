@@ -65,9 +65,9 @@ void CommandLineExcecutor::proccessFile(Argument_t _file)
         }
 
         std::string word = wordArg->to<std::string>();
-
+        int count = wordCount(fileStream, word);
         std::cout << "Number of words "<< word <<" in file " << filePath << ": "
-                  << wordCount(fileStream, word) << std::endl;
+                  << count << std::endl;
     }
     else if (mode == CommandLineConsts::CHECKSUMM_MODE) {
         std::cout << "File checksumm: " << checksumm(fileStream) << std::endl;
