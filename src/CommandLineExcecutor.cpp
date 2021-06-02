@@ -3,78 +3,63 @@
 #include "CommandLineArgumentConsts.h"
 
 #include <iostream>
-#include <iomanip>
-#include <codecvt>
-#include <regex>
 
 CommandLineExcecutor::CommandLineExcecutor():
     m_wordRx(m_wstrConverter.from_bytes(CommandLineConsts::WORD_REGEXP))
 {
 }
 
-void CommandLineExcecutor::exec(Argument_t _root)
+void CommandLineExcecutor::exec(const boost::program_options::variables_map &_map,
+                                const boost::program_options::options_description &_desc)
 {
-    Argument_t child = _root->child(CommandLineConsts::HELP);
-
-    if (child->hasValue()) {
-        std::cout << "Options:";
-        showInfo(_root);
-        return;
+    if (_map.contains(CommandLineConsts::HELP)) {
+        showInfo(_desc);
     }
-
-    Argument_t file = _root->child(CommandLineConsts::FILE_PATH);
-    proccessFile(file);
-}
-
-void CommandLineExcecutor::showInfo(Argument_t _root) const noexcept
-{
-    std::cout << std::setw(CommandLineConsts::OUTPIT_WIDE) << std::left <<_root->arg() << std::right << _root->description() << std::endl;
-    for (const auto [name, descr]: _root->availableValues()) {
-        std::cout << std::setw(CommandLineConsts::OUTPIT_WIDE) << std::left << "  " + name << std::right << descr << std::endl;
-    }
-
-    for (const auto [name, arg]: _root->children()) {
-        showInfo(arg);
+    else if (_map.contains(CommandLineConsts::FILE_PATH)) {
+        proccessFile(_map);
     }
 }
 
-void CommandLineExcecutor::proccessFile(Argument_t _file)
+inline void CommandLineExcecutor::showInfo(const boost::program_options::options_description &_desc) const noexcept
 {
-    if (!_file->hasValue()) {
-        throw std::runtime_error("File path not specified");
-    }
+    std::cout << _desc;
+}
 
-    std::string filePath = _file->to<std::string>();
+void CommandLineExcecutor::proccessFile(const boost::program_options::variables_map &_map)
+{
+    try {
+        std::string filePath = _map[CommandLineConsts::FILE_PATH].as<std::string>();
 
-    std::ifstream fileStream(filePath, std::ios_base::in);
-    if (!fileStream.is_open()) {
-        throw std::runtime_error("Could not open file");
-    }
-
-    Argument_t fileMode = _file->child(CommandLineConsts::FILE_MODE);
-    if (!fileMode->hasValue()) {
-        throw std::runtime_error("Mode not specified");
-    }
-
-    std::string mode = fileMode->to<std::string>();;
-
-    if (mode == CommandLineConsts::WORD_COUNT_MODE) {
-        Argument_t wordArg = _file->child(CommandLineConsts::FIND_WORD);
-        if (!wordArg->hasValue()) {
-            throw std::runtime_error("No search word specified");
+        std::ifstream fileStream(filePath);
+        if (!fileStream.is_open()) {
+            throw std::runtime_error(std::string("Could not open file: ").append(filePath));
         }
 
-        std::string word = wordArg->to<std::string>();
-        int count = wordCount(fileStream, word);
-        std::cout << "Number of words "<< word <<" in file " << filePath << ": "
-                  << count << std::endl;
+        if (!_map.contains(CommandLineConsts::FILE_MODE)) {
+            throw std::runtime_error("File mode not specified");
+        }
+
+        std::string mode = _map[CommandLineConsts::FILE_MODE].as<std::string>();
+        if (mode == CommandLineConsts::CHECKSUMM_MODE) {
+            std::cout << checksumm(fileStream) << std::endl;
+        }
+        else if (mode == CommandLineConsts::WORD_COUNT_MODE) {
+            if (!_map.contains(CommandLineConsts::FIND_WORD)) {
+                throw std::runtime_error("No search word specified");
+            }
+
+            std::cout << wordCount(fileStream, _map[CommandLineConsts::FIND_WORD].as<std::string>()) << std::endl;
+        }
+        else {
+            throw std::runtime_error(std::string("Unknow file mode: ").append(mode));
+        }
     }
-    else if (mode == CommandLineConsts::CHECKSUMM_MODE) {
-        std::cout << "File checksumm: " << checksumm(fileStream) << std::endl;
+    catch (const std::exception &exception) {
+        throw std::runtime_error(std::string("Failed to process file:\n").append(exception.what()));
     }
 }
 
-int CommandLineExcecutor::wordCount(std::ifstream &_fileStream, const std::string &_word)
+auto CommandLineExcecutor::wordCount(std::ifstream &_fileStream, const std::string &_word) -> int
 {
     std::wstring wWord = toLower(m_wstrConverter.from_bytes(_word));
 
@@ -86,8 +71,8 @@ int CommandLineExcecutor::wordCount(std::ifstream &_fileStream, const std::strin
 
         for (rxIt_t it {wline.cbegin(), wline.cend(), m_wordRx, 0}; it != rxIt_t{}; ++it) {
             std::wstring word = (*it);
-
-            if (!word.compare(wWord)) {
+			
+            if (word == wWord) {
                 count++;
             }
         }
@@ -96,27 +81,30 @@ int CommandLineExcecutor::wordCount(std::ifstream &_fileStream, const std::strin
     return count;
 }
 
-uint32_t CommandLineExcecutor::checksumm(std::ifstream &_fileStream) const
+auto CommandLineExcecutor::checksumm(std::ifstream &_fileStream) const -> uint32_t
 {
+    constexpr unsigned long sizeOf = sizeof(uint32_t);
     uint32_t checksumm = 0;
 
+    std::array<char, sizeOf> arr {0};
+    uint32_t convertedValue {0};
     while (_fileStream.good() && !_fileStream.eof()) {
-        uint32_t word = 0;
-        _fileStream.read((char *) &word, sizeof(uint32_t));
+        _fileStream.read(&arr[0], sizeOf);
 
-        checksumm += word;
+        std::memcpy(&convertedValue, &arr, sizeOf);
+        checksumm += convertedValue;
     }
 
     return checksumm;
 }
 
-std::wstring CommandLineExcecutor::toLower(std::wstring_view _str) const noexcept
+auto CommandLineExcecutor::toLower(std::wstring_view _str) const noexcept -> std::wstring
 {
     std::wstring lowerStr;
 
     for (auto ch: _str) {
-        if (ch >=  1040 && ch <= 1071) {
-            ch += 32;
+        if (ch >=  CommandLineConsts::RUS_FIRST_LETTER && ch <= CommandLineConsts::RUS_LAST_LETTER) {
+            ch += CommandLineConsts::RUS_LOWERCASE_LETTER_OFFSET;
         }
         else {
             ch = towlower(ch);

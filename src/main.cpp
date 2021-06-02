@@ -7,34 +7,45 @@
 #include <iomanip>
 #include <codecvt>
 
+#include <boost/program_options.hpp>
+
 using namespace std;
 
-int main(int argc, char**argv)
+auto commandLineArgument(const char *_argumentFullName) -> string;
+
+auto main(int argc, char**argv) -> int
 {
-    // Инициализация дерева аргументов с их возможными значениями.
-    auto root = std::make_shared<CommandLineArgument>("", "");
-    auto fileArg = std::make_shared<CommandLineArgument>(CommandLineConsts::FILE_PATH, "The path to the file");
-    fileArg->addChild(std::make_shared<CommandLineArgument>(CommandLineConsts::FIND_WORD, "Finds words in a file"));
-
-    auto mode = std::make_shared<CommandLineArgument>(CommandLineConsts::FILE_MODE, "File mode");
-    mode->addAvailableValue(CommandLineConsts::WORD_COUNT_MODE, "Prints the number of words in the file");
-    mode->addAvailableValue(CommandLineConsts::CHECKSUMM_MODE, "Prints 32-bit checksum of the file");
-    fileArg->addChild(mode);
-
-    root->addChild(fileArg);
-    root->addChild(std::make_shared<CommandLineArgument>(CommandLineConsts::HELP, "Show help"));
-
     try {
-        // Парсим командную строку.
-        CommandLineParser parser(argc, argv);
-        parser.parse(root);
-
         CommandLineExcecutor executor;
-        executor.exec(root);
+
+        boost::program_options::options_description desc("Options");
+        desc.add_options()
+                (commandLineArgument(CommandLineConsts::HELP).c_str(), "Show help")
+                (commandLineArgument(CommandLineConsts::FILE_PATH).c_str(),  boost::program_options::value<string>(),
+                 "The path to the file")
+                (commandLineArgument(CommandLineConsts::FILE_MODE).c_str(), boost::program_options::value<string>(),
+                 "File mode")
+                (commandLineArgument(CommandLineConsts::FIND_WORD).c_str(), boost::program_options::value<string>(),
+                 "Prints the number of words in the file");
+
+
+        boost::program_options::variables_map vm;
+        boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
+        boost::program_options::notify(vm);
+
+        executor.exec(vm, desc);
     }
     catch (const std::exception &exception) {
         cerr << exception.what() << endl;
     }
 
     return 0;
+}
+
+auto commandLineArgument(const char *_argumentFullName) -> string {
+    string arg(_argumentFullName);
+    arg.push_back(',');
+    arg.push_back(arg[0]);
+
+    return arg;
 }

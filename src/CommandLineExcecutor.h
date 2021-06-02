@@ -1,14 +1,12 @@
 #ifndef COMMANDLINEEXCECUTOR_H
 #define COMMANDLINEEXCECUTOR_H
 
-#include "CommandLineArgument.h"
-
 #include <fstream>
 #include <string>
 #include <regex>
 #include <codecvt>
 
-using Argument_t = std::shared_ptr<CommandLineArgument>;
+#include <boost/program_options.hpp>
 
 //! Класс выполняющий коммануд из командной строки.
 class CommandLineExcecutor
@@ -21,9 +19,11 @@ public:
 
     /*!
      * \brief Выаолняет команду из командной строки.
-     * \param _root - аргументы коммандной строки.
+     * \param[in] _map - аргументы командной строки.
+     * \param[in] _desc - описание аргументов командной строки.
      */
-    void exec(Argument_t _root);
+    void exec(const boost::program_options::variables_map &_map,
+              const boost::program_options::options_description &_desc);
 
 private:
     //! Конвертер обычной строки в широкую строку.
@@ -31,34 +31,36 @@ private:
     //! Регулярное выражение, определяющее слово.
     std::wregex m_wordRx;
 
-
     //! Отображает информацию о доступных командах.
-    void showInfo(Argument_t _root) const noexcept;
+    inline void showInfo(const boost::program_options::options_description &_desc) const noexcept;
     /*!
      * \brief Обрататывает команду работы с файлом.
-     * \param _file - аргумент содержащий путь до файла.
+     * \param[in] _map - аргументы командной строки..
      * \throw std::runtime_error - если не удалось обработать комманду.
      */
-    void proccessFile(Argument_t _file);
+    void proccessFile(const boost::program_options::variables_map &_map);
     /*!
      * \brief Считывает количетсво слов в файле.
      * \param _fileStream - файловый поток.
      * \param _word - искомое слово.
      * \return Возвращает количество вхождений слова в файл.
      */
-    int wordCount(std::ifstream &_fileStream, const std::string &_word);
+    [[nodiscard]]
+    auto wordCount(std::ifstream &_fileStream, const std::string &_word) -> int;
     /*!
      * \brief Рассчитывает контрольную сумму.
      * \param _fileStream - файловый поток.
      * \return Возвращает контрольную сумму.
      */
-    uint32_t checksumm(std::ifstream &_fileStream) const;
+    [[nodiscard]]
+    auto checksumm(std::ifstream &_fileStream) const -> uint32_t;
     /*!
       * \brief Преобразует строку в нижний регистр.
       * \param _str - исходная строка.
       * \return Возвращает строку в нижнем регистре.
       */
-    std::wstring toLower(std::wstring_view _str) const noexcept;
+    [[nodiscard]]
+    auto toLower(std::wstring_view _str) const noexcept -> std::wstring;
 
 };
 

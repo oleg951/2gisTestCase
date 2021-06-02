@@ -18,9 +18,11 @@
 *.qm
 .#*
 *.*#
+*.vscode
 core
 /bin
 /build
+/Doc
 /debug
 !core/
 tags
