@@ -1,4 +1,4 @@
-#include "CommandLineParser.h"
+#include "FileStream.h"
 #include "CommandLineExcecutor.h"
 #include "CommandLineArgumentConsts.h"
 
@@ -33,7 +33,8 @@ auto main(int argc, char**argv) -> int
         boost::program_options::store(boost::program_options::parse_command_line(argc, argv, desc), vm);
         boost::program_options::notify(vm);
 
-        executor.exec(vm, desc);
+        FileStream fs;
+        executor.exec(vm, desc, fs);
     }
     catch (const std::exception &exception) {
         cerr << exception.what() << endl;
