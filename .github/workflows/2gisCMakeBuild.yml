@@ -19,8 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      BOOST_ROOT: "/usr/local"
-      Boost_INCLUDE_DIR: "/usr/local/include/"
+      BOOST_ROOT: "/usr/local/share/"
+      Boost_INCLUDE_DIR: "/usr/local/share/include/"
 
 
     steps:
