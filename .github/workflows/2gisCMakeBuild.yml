@@ -17,9 +17,6 @@ jobs:
     # cross-platform coverage.
     # See: https://docs.github.com/en/free-pro-team@latest/actions/learn-github-actions/managing-complex-workflows#using-a-build-matrix
     runs-on: ubuntu-latest
-    
-    env:
-      BOOST_ROOT: "/usr/local/share/boost/1.76.0"
 
 
     steps:
