@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 
 project(TestCase
         VERSION 1.0.0
-        DESCRIPTION "2gis test case"
+        DESCRIPTION "2gis test"
         LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
