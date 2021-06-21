@@ -20,11 +20,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    
-    - name: env
-      run: echo "::set-env name=BOOST_ROOT_LATEST::$env:BOOST_ROOT_1_76_0"
-    - name: echo
-      run: $env:BOOST_ROOT_LATEST
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
