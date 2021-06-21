@@ -19,14 +19,14 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      BOOST_ROOT: "/usr/local/share/boost/1.76.0"
+      Boost_INCLUDE_DIR: "/usr/local/include/boost"
 
 
     steps:
     - uses: actions/checkout@v2
     
-    - name: BOOST_ROOT
-      run: echo $BOOST_ROOT 
+    - name: Boost_INCLUDE_DIR
+      run: echo $Boost_INCLUDE_DIR 
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
