@@ -67,13 +67,26 @@ void CommandLineExcecutor::proccessFile(const boost::program_options::variables_
 
 auto CommandLineExcecutor::wordCount(std::istream &_inputStream, const std::string &_word) -> int
 {
-    std::wstring wWord = toLower(m_wstrConverter.from_bytes(_word));
+    auto toLower = [](wint_t _ch) -> wint_t {
+        if (_ch >=  CommandLineConsts::RUS_FIRST_LETTER && _ch <= CommandLineConsts::RUS_LAST_LETTER) {
+            _ch += CommandLineConsts::RUS_LOWERCASE_LETTER_OFFSET;
+        }
+        else {
+            _ch = towlower(_ch);
+        }
+
+        return _ch;
+    };
+
+    std::wstring wWord = m_wstrConverter.from_bytes(_word);
+    std::transform(wWord.cbegin(), wWord.cend(), wWord.begin(), toLower);
 
     using rxIt_t =  std::wsregex_token_iterator;
     int count = 0;
     std::string line;
     while (getline(_inputStream, line)) {
-        std::wstring wline = toLower(m_wstrConverter.from_bytes(line));
+        std::wstring wline = m_wstrConverter.from_bytes(line);
+        std::transform(wline.cbegin(), wline.cend(), wline.begin(), toLower);
 
         for (rxIt_t it {wline.cbegin(), wline.cend(), m_wordRx, 0}; it != rxIt_t{}; ++it) {
             std::wstring word = (*it);
@@ -102,22 +115,4 @@ auto CommandLineExcecutor::checksumm(std::istream &_inputStream) const -> uint32
     }
 
     return checksumm;
-}
-
-auto CommandLineExcecutor::toLower(std::wstring_view _str) const noexcept -> std::wstring
-{
-    std::wstring lowerStr;
-
-    for (auto ch: _str) {
-        if (ch >=  CommandLineConsts::RUS_FIRST_LETTER && ch <= CommandLineConsts::RUS_LAST_LETTER) {
-            ch += CommandLineConsts::RUS_LOWERCASE_LETTER_OFFSET;
-        }
-        else {
-            ch = towlower(ch);
-        }
-
-        lowerStr += ch;
-    }
-
-    return lowerStr;
 }

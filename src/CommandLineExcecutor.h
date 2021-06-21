@@ -63,14 +63,6 @@ private:
      */
     void proccessFile(const boost::program_options::variables_map &_map,
                       IFileStream &_fileSteamInterface);
-    /*!
-      * \brief Преобразует строку в нижний регистр.
-      * \param _str - исходная строка.
-      * \return Возвращает строку в нижнем регистре.
-      */
-    [[nodiscard]]
-    auto toLower(std::wstring_view _str) const noexcept -> std::wstring;
-
 };
 
 #endif // COMMANDLINEEXCECUTOR_H
