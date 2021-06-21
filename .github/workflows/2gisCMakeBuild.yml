@@ -30,8 +30,8 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run:
-          cmake -S . -B build -DBoost_INCLUDE_DIR=$BOOST_ROOT_1_76_0/include
+      run: |
+          cmake -S . -B build -DBoost_INCLUDE_DIR=$BOOST_ROOT_1_72_0/include
           cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
     - name: Test
