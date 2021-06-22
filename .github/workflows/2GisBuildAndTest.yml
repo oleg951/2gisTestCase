@@ -24,22 +24,31 @@ jobs:
     
     #Install dependency
     - name: boost
+      #run: |
+        #sudo apt install libboost-dev
+        #sudo apt install libboost-all-dev
       run: |
-        sudo apt install libboost-dev
-        sudo apt install libboost-all-dev
+          sudo apt-get update
+          sudo apt-get install libjsoncpp-dev uuid-dev
+        
+    #- name: check boost version
+      #run: dpkg -s libboost-dev | grep Version
   
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
-      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      #run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
+      run: |
+          cmake -S . -B build -DBoost_INCLUDE_DIR=$BOOST_ROOT_1_72_0/include
+          cmake --build build -j2
 
-    - name: Build
+   # - name: Build
       # Build your program with the given configuration
-      run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
+    #  run: cmake --build ${{github.workspace}}/build --config ${{env.BUILD_TYPE}}
 
-    - name: Test
-      working-directory: ${{github.workspace}}/build
+   # - name: Test
+    #  working-directory: ${{github.workspace}}/build
       # Execute tests defined by the CMake configuration.  
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest -C ${{env.BUILD_TYPE}}
+    #  run: ctest -C ${{env.BUILD_TYPE}}
       
