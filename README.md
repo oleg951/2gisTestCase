@@ -1,5 +1,4 @@
 [![Build](https://github.com/oleg951/2gisTestCase/actions/workflows/2GisBuildAndTest.yml/badge.svg)](https://github.com/oleg951/2gisTestCase/actions/workflows/2GisBuildAndTest.yml)
-[![Google tests](https://github.com/oleg951/2gisTestCase/actions/workflows/2GisBuildAndTest.yml/badge.svg)](https://github.com/oleg951/2gisTestCase/actions/workflows/2GisBuildAndTest.yml)
 
 # 2gisTestCase - Тестовое задание 2gis.
 ___
