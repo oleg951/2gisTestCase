@@ -20,6 +20,9 @@
 *.*#
 *.vscode
 core
+/*debug*
+/*release*
+.idea
 /bin
 /build
 /Doc
