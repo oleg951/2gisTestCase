@@ -25,6 +25,7 @@ jobs:
     #Install dependency
     - name: boost
       run: |
+        sudo apt update
         sudo apt install libboost-dev
         sudo apt install libboost-all-dev
         
