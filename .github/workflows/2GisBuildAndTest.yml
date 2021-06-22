@@ -1,4 +1,4 @@
-name: CMake
+name: Build and Test 2gis
 
 on:
   push:
@@ -22,18 +22,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    #Install dependency
-    - name: boost
+    #Install dependencies
+    - name: Install dependencies
       run: |
         sudo apt update
         sudo apt install libboost-dev
         sudo apt install libboost-all-dev
-        
-    - name: check boost version
-      run: dpkg -s libboost-dev | grep Version
-      
-    - name: check make version
-      run: make -v
+        sudo apt install build-essential
   
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
