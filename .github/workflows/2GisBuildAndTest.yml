@@ -21,9 +21,9 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     
-    #install dependency
+      #install dependency
     - name: boost
-      run: sudo apt-get update && sudo apt-get install -yq libboost1.65-dev
+      run: sudo apt-get update -y && sudo apt-get install -y libboost1.65-dev
       
 
     - name: Configure CMake
