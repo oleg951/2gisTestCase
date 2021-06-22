@@ -38,7 +38,7 @@ jobs:
 
     - name: Build
       # Build your program with the given configuration
-      run: make -j2
+      run: cmake --build build -j2
 
     - name: Test
       working-directory: ${{github.workspace}}/build
