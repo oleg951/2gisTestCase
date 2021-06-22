@@ -9,7 +9,7 @@ set (HEADERS
     FileStream.h
     )
 
-find_package(Boost 1.72.0 REQUIRED program_options)
+find_package(Boost 1.69.0 REQUIRED program_options)
 
 add_library(CommandLineLib ${SOURCES})
 target_link_libraries(CommandLineLib ${Boost_LIBRARIES})
