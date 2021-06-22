@@ -35,7 +35,7 @@ jobs:
       
     - name: Build
       # Build your program with the given configuration
-      run: make -C ${{github.workspace}}/build
+      run: make -C ${{github.workspace}}/build VERBOSE=1 -j1
 
     - name: Test
       working-directory: ${{github.workspace}}/build
