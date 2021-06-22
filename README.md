@@ -1,4 +1,5 @@
 [![Build](https://github.com/oleg951/2gisTestCase/actions/workflows/2GisBuildAndTest.yml/badge.svg)](https://github.com/oleg951/2gisTestCase/actions/workflows/2GisBuildAndTest.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 # 2gisTestCase - Тестовое задание 2gis.
 ___
